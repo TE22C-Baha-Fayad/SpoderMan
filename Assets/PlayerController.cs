@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -6,11 +7,17 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] float speed = 5;
     [SerializeField] float jumpForce = 1;
+    [SerializeField] float teleportationBorderSpeed = 3;
+    [SerializeField] Vector2 groundCheckBoxSize = Vector2.one;
+    [SerializeField] float castDistance = 1f;
+    [SerializeField] LayerMask groundLayer;
 
-    [SerializeField] float teleportationLineSpeed = 3;
 
-    private LineRenderer teleportationLine;
+
+    private LineRenderer playerTeleportationLine;
+    private GameObject teleportationBorder;
     private bool teleportActive = false;
+    private bool isJumping = false;
     private Animator animator;
     private Rigidbody2D rb;
 
@@ -18,7 +25,8 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        teleportationLine = GetComponent<LineRenderer>();
+        teleportationBorder = transform.Find("TeleportationBorder").gameObject;
+        playerTeleportationLine = GetComponent<LineRenderer>();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
     }
@@ -26,75 +34,118 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-        if (Input.GetKeyDown(KeyCode.Space) && !teleportActive)
 
-            teleportActive = true;
-        else if(Input.GetKeyDown(KeyCode.Space) && teleportActive)
+        if (Input.GetKeyDown(KeyCode.Space) && !teleportActive)
         {
+            teleportActive = true;
+            playerTeleportationLine.SetPosition(1, Vector3.zero);
+        }
+        else if (Input.GetKeyDown(KeyCode.Space) && teleportActive)
+        {
+            transform.position = transform.TransformPoint  (playerTeleportationLine.GetComponent<LineRenderer>().GetPosition(1));
             teleportActive = false;
         }
-        
 
-        if(teleportActive)
+
+        if (Input.GetKeyDown(KeyCode.W) && IsGrounded())
         {
-            transform.Find("TeleportationBorder").gameObject.SetActive(true);
-            teleportationLine.enabled = true;
-            Teleport();
+            isJumping = true;
         }
-        else{
-            transform.Find("TeleportationBorder").gameObject.SetActive(false);
-            teleportationLine.enabled = false;
-            Movement();
-        }
-        
+
+
 
     }
+    void FixedUpdate()
+    {
+        if (teleportActive)
+        {
+            teleportationBorder.gameObject.SetActive(true);
+            playerTeleportationLine.enabled = true;
+            Teleport();
+        }
+        else
+        {
+            teleportationBorder.gameObject.SetActive(false);
+            playerTeleportationLine.enabled = false;
+            Movement();
+            if (isJumping)
+            {
+                Jump();
+                isJumping = false;
+            }
+
+
+        }
+    }
+    void OnDrawGizmos()
+    {
+        Gizmos.DrawWireCube(transform.position-transform.up*castDistance,groundCheckBoxSize);
+    }
+    bool IsGrounded()
+    {
+        if (Physics2D.BoxCast(transform.position, groundCheckBoxSize, 0, -transform.up, castDistance, groundLayer))
+        {
+            return true;
+        }
+        else{
+            return false;
+        }
+
+    }
+    
 
     void Teleport()
     {
-        Vector3 lineMovement = new Vector3(teleportationLine.GetPosition(1).x, teleportationLine.GetPosition(1).y, 0);
-        
-        if(Input.GetKey(KeyCode.UpArrow))
+        Vector3 lineMovement = new Vector3(playerTeleportationLine.GetPosition(1).x, playerTeleportationLine.GetPosition(1).y, 0);
+        LineRenderer borderLine = teleportationBorder.GetComponent<LineRenderer>();
+        if (Input.GetKey(KeyCode.UpArrow))
         {
-            lineMovement.y += teleportationLineSpeed *Time.deltaTime;
+            if (playerTeleportationLine.GetPosition(1).y < borderLine.GetPosition(1).y - borderLine.widthMultiplier)
+                lineMovement.y += teleportationBorderSpeed * Time.deltaTime;
         }
-        if(Input.GetKey(KeyCode.RightArrow))
+        if (Input.GetKey(KeyCode.RightArrow))
         {
-            lineMovement.x += teleportationLineSpeed*Time.deltaTime;
+            if (playerTeleportationLine.GetPosition(1).x < borderLine.GetPosition(2).x - borderLine.widthMultiplier)
+                lineMovement.x += teleportationBorderSpeed * Time.deltaTime;
         }
-        if(Input.GetKey(KeyCode.DownArrow))
+        if (Input.GetKey(KeyCode.DownArrow))
         {
-            lineMovement.y -= teleportationLineSpeed*Time.deltaTime;
+            if (playerTeleportationLine.GetPosition(1).y > borderLine.GetPosition(4).y + borderLine.widthMultiplier)
+                lineMovement.y -= teleportationBorderSpeed * Time.deltaTime;
         }
-        else if(Input.GetKey(KeyCode.LeftArrow)){
-            lineMovement.x -= teleportationLineSpeed*Time.deltaTime;
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            if (playerTeleportationLine.GetPosition(1).x > borderLine.GetPosition(4).x + borderLine.widthMultiplier)
+                lineMovement.x -= teleportationBorderSpeed * Time.deltaTime;
         }
-        
-        
-        teleportationLine.SetPosition(1, lineMovement);
+
+
+        playerTeleportationLine.SetPosition(1, lineMovement);
     }
     void Movement()
     {
         Vector2 movement = new Vector2(Input.GetAxisRaw("Horizontal"), 0) * Time.deltaTime * speed;
 
 
-        string LookingRight = "LookingRight";
+        string lookingRightString = "LookingRight";
         if (movement.x > 0)
         {
-            animator.SetBool(LookingRight, false);
+            animator.SetBool(lookingRightString, false);
 
         }
         else if (movement.x < 0)
         {
 
-            animator.SetBool(LookingRight, true);
+            animator.SetBool(lookingRightString, true);
         }
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            rb.AddForce(new Vector2(0, jumpForce));
-        }
-
         transform.Translate(movement, Space.World);
     }
+    void Jump()
+    {
+
+        rb.AddForce(new Vector2(0, jumpForce));
+
+    }
+
+
 }
