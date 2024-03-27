@@ -12,8 +12,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float castDistance = 1f;
     [SerializeField] LayerMask groundLayer;
 
+    [SerializeField] GameObject colleactablesObj;
 
 
+    public int collectedStars = 0;
     private LineRenderer playerTeleportationLine;
     private GameObject teleportationBorder;
     private bool teleportActive = false;
@@ -42,8 +44,9 @@ public class PlayerController : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Space) && teleportActive)
         {
-            transform.position = transform.TransformPoint  (playerTeleportationLine.GetComponent<LineRenderer>().GetPosition(1));
             teleportActive = false;
+            transform.position = transform.TransformPoint(playerTeleportationLine.GetComponent<LineRenderer>().GetPosition(1));
+            
         }
 
 
@@ -77,22 +80,23 @@ public class PlayerController : MonoBehaviour
 
         }
     }
-    void OnDrawGizmos()
+    /* void OnDrawGizmos()
     {
-        Gizmos.DrawWireCube(transform.position-transform.up*castDistance,groundCheckBoxSize);
-    }
+        Gizmos.DrawWireCube(transform.position - transform.up * castDistance, groundCheckBoxSize);
+    } */
     bool IsGrounded()
     {
         if (Physics2D.BoxCast(transform.position, groundCheckBoxSize, 0, -transform.up, castDistance, groundLayer))
         {
             return true;
         }
-        else{
+        else
+        {
             return false;
         }
 
     }
-    
+
 
     void Teleport()
     {
