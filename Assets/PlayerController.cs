@@ -1,21 +1,28 @@
-using UnityEditor;
+using UnityEditor.Search;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
     // Start is called before the first frame update¨
-
+    // TODO: start scene, levels, 
+    // TODO: teleportation limit
+    // TODO: lasers, obsticals such as sticks rotating in the way of the player.
+    // TODO:  comments
+    // TODO: be able to cancell teleportation without cost
+    // TODO: wining after loosing glitch that must be fixed****
+    // TODO: teleportationsAvailable count is wierd, fix that.
     [SerializeField] float speed = 5;
     [SerializeField] float jumpForce = 1;
     [SerializeField] float teleportationBorderSpeed = 3;
+
+    public delegate void Teleported(int tel);
+    public static event Teleported onTeleport;
+    [SerializeField] int teleportationsAvailable = 3;
     [SerializeField] Vector2 groundCheckBoxSize = Vector2.one;
     [SerializeField] float castDistance = 1f;
     [SerializeField] LayerMask groundLayer;
 
-    [SerializeField] GameObject colleactablesObj;
 
-
-    public int collectedStars = 0;
     private LineRenderer playerTeleportationLine;
     private GameObject teleportationBorder;
     private bool teleportActive = false;
@@ -31,6 +38,7 @@ public class PlayerController : MonoBehaviour
         playerTeleportationLine = GetComponent<LineRenderer>();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        onTeleport?.Invoke(teleportationsAvailable);
     }
 
     // Update is called once per frame
@@ -41,12 +49,16 @@ public class PlayerController : MonoBehaviour
         {
             teleportActive = true;
             playerTeleportationLine.SetPosition(1, Vector3.zero);
+            if(teleportationsAvailable !=0)
+            teleportationsAvailable--;
+            print(teleportationsAvailable);
+            onTeleport?.Invoke(teleportationsAvailable);
         }
         else if (Input.GetKeyDown(KeyCode.Space) && teleportActive)
         {
             teleportActive = false;
             transform.position = transform.TransformPoint(playerTeleportationLine.GetComponent<LineRenderer>().GetPosition(1));
-            
+
         }
 
 
@@ -60,11 +72,12 @@ public class PlayerController : MonoBehaviour
     }
     void FixedUpdate()
     {
-        if (teleportActive)
+        if (teleportActive && teleportationsAvailable > -1)
         {
             teleportationBorder.gameObject.SetActive(true);
             playerTeleportationLine.enabled = true;
             Teleport();
+            
         }
         else
         {
@@ -87,13 +100,9 @@ public class PlayerController : MonoBehaviour
     bool IsGrounded()
     {
         if (Physics2D.BoxCast(transform.position, groundCheckBoxSize, 0, -transform.up, castDistance, groundLayer))
-        {
             return true;
-        }
         else
-        {
             return false;
-        }
 
     }
 
@@ -102,22 +111,22 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 lineMovement = new Vector3(playerTeleportationLine.GetPosition(1).x, playerTeleportationLine.GetPosition(1).y, 0);
         LineRenderer borderLine = teleportationBorder.GetComponent<LineRenderer>();
-        if (Input.GetKey(KeyCode.UpArrow))
+        if (Input.GetKey(KeyCode.W))
         {
             if (playerTeleportationLine.GetPosition(1).y < borderLine.GetPosition(1).y - borderLine.widthMultiplier)
                 lineMovement.y += teleportationBorderSpeed * Time.deltaTime;
         }
-        if (Input.GetKey(KeyCode.RightArrow))
+        if (Input.GetKey(KeyCode.D))
         {
             if (playerTeleportationLine.GetPosition(1).x < borderLine.GetPosition(2).x - borderLine.widthMultiplier)
                 lineMovement.x += teleportationBorderSpeed * Time.deltaTime;
         }
-        if (Input.GetKey(KeyCode.DownArrow))
+        if (Input.GetKey(KeyCode.S))
         {
             if (playerTeleportationLine.GetPosition(1).y > borderLine.GetPosition(4).y + borderLine.widthMultiplier)
                 lineMovement.y -= teleportationBorderSpeed * Time.deltaTime;
         }
-        if (Input.GetKey(KeyCode.LeftArrow))
+        if (Input.GetKey(KeyCode.A))
         {
             if (playerTeleportationLine.GetPosition(1).x > borderLine.GetPosition(4).x + borderLine.widthMultiplier)
                 lineMovement.x -= teleportationBorderSpeed * Time.deltaTime;
@@ -125,6 +134,7 @@ public class PlayerController : MonoBehaviour
 
 
         playerTeleportationLine.SetPosition(1, lineMovement);
+
     }
     void Movement()
     {

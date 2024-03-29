@@ -9,7 +9,7 @@ public class TeleportationBoxController : MonoBehaviour
 {
     // Start is called before the first frame update
     
-    [SerializeField][Range(6,15)] float size = 2;
+    [SerializeField][Range(6,20)] float size = 2;
     private LineRenderer lineRenderer;
  
     void OnValidate()
