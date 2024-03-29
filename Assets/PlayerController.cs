@@ -30,8 +30,6 @@ public class PlayerController : MonoBehaviour
     private Animator animator;
     private Rigidbody2D rb;
 
-
-
     void Start()
     {
         teleportationBorder = transform.Find("TeleportationBorder").gameObject;
@@ -41,17 +39,22 @@ public class PlayerController : MonoBehaviour
         onTeleport?.Invoke(teleportationsAvailable);
     }
 
+
     // Update is called once per frame
     void Update()
     {
 
+        if (Input.GetKeyDown(KeyCode.Escape) && teleportActive)
+        {
+            cancellTeleportation();
+        }
         if (Input.GetKeyDown(KeyCode.Space) && !teleportActive)
         {
             teleportActive = true;
             playerTeleportationLine.SetPosition(1, Vector3.zero);
-            if(teleportationsAvailable !=0)
-            teleportationsAvailable--;
-            print(teleportationsAvailable);
+            if (teleportationsAvailable > -1)
+                teleportationsAvailable--;
+
             onTeleport?.Invoke(teleportationsAvailable);
         }
         else if (Input.GetKeyDown(KeyCode.Space) && teleportActive)
@@ -77,7 +80,8 @@ public class PlayerController : MonoBehaviour
             teleportationBorder.gameObject.SetActive(true);
             playerTeleportationLine.enabled = true;
             Teleport();
-            
+
+
         }
         else
         {
@@ -106,11 +110,20 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    void cancellTeleportation()
+    {
 
+        teleportationsAvailable++;
+        onTeleport?.Invoke(teleportationsAvailable);
+        teleportActive = false;
+
+
+    }
     void Teleport()
     {
         Vector3 lineMovement = new Vector3(playerTeleportationLine.GetPosition(1).x, playerTeleportationLine.GetPosition(1).y, 0);
         LineRenderer borderLine = teleportationBorder.GetComponent<LineRenderer>();
+
         if (Input.GetKey(KeyCode.W))
         {
             if (playerTeleportationLine.GetPosition(1).y < borderLine.GetPosition(1).y - borderLine.widthMultiplier)
