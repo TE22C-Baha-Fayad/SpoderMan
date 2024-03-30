@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class UITimeController : MonoBehaviour
@@ -20,18 +21,24 @@ public class UITimeController : MonoBehaviour
     }
 
     // Update is called once per frame
-    
+
     void Update()
     {
-        
-        if(levelTimeInSeconds > 0)
-        levelTimefloat -= Time.deltaTime;
-        
+        SceneManager.activeSceneChanged += ResetValues;
+        if (levelTimeInSeconds > 0)
+            levelTimefloat -= Time.deltaTime;
+
         levelTimeInSeconds = (int)levelTimefloat;
 
-        if(levelTimeInSeconds == 0)
-        onOutOfTime?.Invoke();
+        if (levelTimeInSeconds == 0)
+            onOutOfTime?.Invoke();
 
-        timeLeftUi.text = timeLeftUiStartValue +"<color=#262899>" +levelTimeInSeconds+"</color><color=#20187d>S</color>";
+        timeLeftUi.text = timeLeftUiStartValue + "<color=#262899>" + levelTimeInSeconds + "</color><color=#20187d>S</color>";
     }
+    void ResetValues(Scene current, Scene next)
+    {
+        onOutOfTime = null;
+    }
+
+
 }

@@ -10,29 +10,30 @@ public class CanvasController : MonoBehaviour
     [SerializeField] GameObject winCanvas;
     [SerializeField] GameObject LoseCanvas;
 
-    
+
     int starsCollected = 0;
     void Start()
     {
         UITimeController.onOutOfTime += OutOfTime;
-        CollectableItem.onStarCollected += StarCollected;
+        CollectableItem.OnStarCollected += StarCollected;
     }
 
     void StarCollected()
     {
         starsCollected++;
-        if(starsCollected == 3)
+        if (starsCollected == 3)
         {
             ShowWinCanvas();
         }
     }
     void OutOfTime()
     {
-        if(starsCollected>0)
+        if (starsCollected > 0)
         {
             ShowWinCanvas();
         }
-        else{
+        else
+        {
             ShowLoseCanvas();
         }
     }
@@ -44,7 +45,7 @@ public class CanvasController : MonoBehaviour
     void ShowWinCanvas()
     {
         winCanvas.SetActive(true);
-        starsCanvasGameObject.GetComponent<RawImage>().texture = starTextures[starsCollected-1];
+        starsCanvasGameObject.GetComponent<RawImage>().texture = starTextures[starsCollected - 1];
 
     }
 }

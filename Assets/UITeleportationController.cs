@@ -7,7 +7,7 @@ public class UITeleportationController : MonoBehaviour
     string labelStartValue;
     void Awake()
     {
-        PlayerController.onTeleport += Teleported;
+        PlayerController.OnTeleport += Teleported;
         teleportationLabelUi = GetComponent<TextMeshProUGUI>();
         labelStartValue = teleportationLabelUi.text;
     }

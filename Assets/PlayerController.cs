@@ -4,11 +4,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     // Start is called before the first frame update¨
+    // TODO: player jumping high by teleportation, fix that.
     // TODO: start scene, levels, 
     // TODO: teleportation limit
     // TODO: lasers, obsticals such as sticks rotating in the way of the player.
-    // TODO:  comments
-    // TODO: be able to cancell teleportation without cost
+    // TODO:  comment code later
     // TODO: wining after loosing glitch that must be fixed****
     // TODO: teleportationsAvailable count is wierd, fix that.
     [SerializeField] float speed = 5;
@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float teleportationBorderSpeed = 3;
 
     public delegate void Teleported(int tel);
-    public static event Teleported onTeleport;
+    public static event Teleported OnTeleport;
     [SerializeField] int teleportationsAvailable = 3;
     [SerializeField] Vector2 groundCheckBoxSize = Vector2.one;
     [SerializeField] float castDistance = 1f;
@@ -27,16 +27,14 @@ public class PlayerController : MonoBehaviour
     private GameObject teleportationBorder;
     private bool teleportActive = false;
     private bool isJumping = false;
-    private Animator animator;
     private Rigidbody2D rb;
 
     void Start()
     {
         teleportationBorder = transform.Find("TeleportationBorder").gameObject;
         playerTeleportationLine = GetComponent<LineRenderer>();
-        animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
-        onTeleport?.Invoke(teleportationsAvailable);
+        OnTeleport?.Invoke(teleportationsAvailable);
     }
 
 
@@ -55,7 +53,7 @@ public class PlayerController : MonoBehaviour
             if (teleportationsAvailable > -1)
                 teleportationsAvailable--;
 
-            onTeleport?.Invoke(teleportationsAvailable);
+            OnTeleport?.Invoke(teleportationsAvailable);
         }
         else if (Input.GetKeyDown(KeyCode.Space) && teleportActive)
         {
@@ -114,7 +112,7 @@ public class PlayerController : MonoBehaviour
     {
 
         teleportationsAvailable++;
-        onTeleport?.Invoke(teleportationsAvailable);
+        OnTeleport?.Invoke(teleportationsAvailable);
         teleportActive = false;
 
 
@@ -151,21 +149,40 @@ public class PlayerController : MonoBehaviour
     }
     void Movement()
     {
+        SpriteRenderer sprite = GetComponent<SpriteRenderer>();
         Vector2 movement = new Vector2(Input.GetAxisRaw("Horizontal"), 0) * Time.deltaTime * speed;
 
-
-        string lookingRightString = "LookingRight";
-        if (movement.x > 0)
+        if(movement.x>0)
         {
-            animator.SetBool(lookingRightString, false);
-
+            
+            Animation(true);
         }
-        else if (movement.x < 0)
-        {
-
-            animator.SetBool(lookingRightString, true);
+        else if(movement.x<0){
+             
+            Animation(false);
         }
+
         transform.Translate(movement, Space.World);
+
+        
+        void Animation(bool directionRight)
+        {
+            
+
+            if (directionRight)
+            {
+                print(sprite.flipX);
+                sprite.flipX = true;
+            }
+            else if (!directionRight)
+            {
+                
+                print(sprite.flipX);
+                sprite.flipX = false;
+            }
+
+        }
+
     }
     void Jump()
     {
@@ -173,6 +190,5 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(new Vector2(0, jumpForce));
 
     }
-
 
 }
