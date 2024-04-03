@@ -1,26 +1,34 @@
-using UnityEditor.Search;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    // Start is called before the first frame update¨
-    // TODO: player jumping high by teleportation, fix that.
+    // Start is called before the first frame update
+    // TODO: show the player some instructions and make it visible that you can cancel a teleportation
+    // TODO: skriv i loggboken**********
+    // TODO: make pause menu
+    // TODO: done (x) player jumping high by teleportation, fix that. 
     // TODO: start scene, levels, 
-    // TODO: teleportation limit
+    // TODO: done (x) teleportation limit. 
     // TODO: lasers, obsticals such as sticks rotating in the way of the player.
     // TODO:  comment code later
-    // TODO: wining after loosing glitch that must be fixed****
-    // TODO: teleportationsAvailable count is wierd, fix that.
+    // TODO: done (x) wining after loosing glitch that must be fixed****
+    // TODO: done (x) teleportationsAvailable count is wierd, fix that.
+    // TODO: divide into more functions 
+    [Header("Player Settings")]
     [SerializeField] float speed = 5;
     [SerializeField] float jumpForce = 1;
-    [SerializeField] float teleportationBorderSpeed = 3;
-
-    public delegate void Teleported(int tel);
-    public static event Teleported OnTeleport;
+    [SerializeField] float teleportationLineSpeed = 3;
     [SerializeField] int teleportationsAvailable = 3;
-    [SerializeField] Vector2 groundCheckBoxSize = Vector2.one;
+
+    [Header("Collision Box Settings")]
+    [SerializeField] Vector2 groundCollisionBoxSize = Vector2.one;
     [SerializeField] float castDistance = 1f;
     [SerializeField] LayerMask groundLayer;
+
+
+
+    public delegate void Teleported(int teleportationsAvailable);
+    public static event Teleported OnTeleport;
 
 
     private LineRenderer playerTeleportationLine;
@@ -29,8 +37,10 @@ public class PlayerController : MonoBehaviour
     private bool isJumping = false;
     private Rigidbody2D rb;
 
+
     void Start()
     {
+        CanvasController.OnGameEnded += GameEnded;
         teleportationBorder = transform.Find("TeleportationBorder").gameObject;
         playerTeleportationLine = GetComponent<LineRenderer>();
         rb = GetComponent<Rigidbody2D>();
@@ -44,7 +54,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape) && teleportActive)
         {
-            cancellTeleportation();
+            CancelTeleportation();
         }
         if (Input.GetKeyDown(KeyCode.Space) && !teleportActive)
         {
@@ -59,14 +69,15 @@ public class PlayerController : MonoBehaviour
         {
             teleportActive = false;
             transform.position = transform.TransformPoint(playerTeleportationLine.GetComponent<LineRenderer>().GetPosition(1));
-
         }
 
-
-        if (Input.GetKeyDown(KeyCode.W) && IsGrounded())
+        if (Input.GetKeyDown(KeyCode.W) && IsGrounded() && !teleportActive)
         {
             isJumping = true;
         }
+
+
+
 
 
 
@@ -75,7 +86,7 @@ public class PlayerController : MonoBehaviour
     {
         if (teleportActive && teleportationsAvailable > -1)
         {
-            teleportationBorder.gameObject.SetActive(true);
+            teleportationBorder.SetActive(true);
             playerTeleportationLine.enabled = true;
             Teleport();
 
@@ -83,17 +94,22 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            teleportationBorder.gameObject.SetActive(false);
+            teleportationBorder.SetActive(false);
             playerTeleportationLine.enabled = false;
-            Movement();
             if (isJumping)
             {
-                Jump();
+                HandleJump();
                 isJumping = false;
             }
+            HandleMovement();
 
 
         }
+    }
+
+    void GameEnded()
+    {
+        gameObject.SetActive(false);
     }
     /* void OnDrawGizmos()
     {
@@ -101,21 +117,16 @@ public class PlayerController : MonoBehaviour
     } */
     bool IsGrounded()
     {
-        if (Physics2D.BoxCast(transform.position, groundCheckBoxSize, 0, -transform.up, castDistance, groundLayer))
+        if (Physics2D.BoxCast(transform.position, groundCollisionBoxSize, 0, -transform.up, castDistance, groundLayer))
             return true;
         else
             return false;
-
     }
-
-    void cancellTeleportation()
+    void CancelTeleportation()
     {
-
         teleportationsAvailable++;
         OnTeleport?.Invoke(teleportationsAvailable);
         teleportActive = false;
-
-
     }
     void Teleport()
     {
@@ -125,70 +136,70 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.W))
         {
             if (playerTeleportationLine.GetPosition(1).y < borderLine.GetPosition(1).y - borderLine.widthMultiplier)
-                lineMovement.y += teleportationBorderSpeed * Time.deltaTime;
+                lineMovement.y += teleportationLineSpeed * Time.deltaTime;
         }
         if (Input.GetKey(KeyCode.D))
         {
             if (playerTeleportationLine.GetPosition(1).x < borderLine.GetPosition(2).x - borderLine.widthMultiplier)
-                lineMovement.x += teleportationBorderSpeed * Time.deltaTime;
+                lineMovement.x += teleportationLineSpeed * Time.deltaTime;
         }
         if (Input.GetKey(KeyCode.S))
         {
             if (playerTeleportationLine.GetPosition(1).y > borderLine.GetPosition(4).y + borderLine.widthMultiplier)
-                lineMovement.y -= teleportationBorderSpeed * Time.deltaTime;
+                lineMovement.y -= teleportationLineSpeed * Time.deltaTime;
         }
         if (Input.GetKey(KeyCode.A))
         {
             if (playerTeleportationLine.GetPosition(1).x > borderLine.GetPosition(4).x + borderLine.widthMultiplier)
-                lineMovement.x -= teleportationBorderSpeed * Time.deltaTime;
+                lineMovement.x -= teleportationLineSpeed * Time.deltaTime;
         }
 
 
         playerTeleportationLine.SetPosition(1, lineMovement);
 
     }
-    void Movement()
+    void HandleMovement()
     {
         SpriteRenderer sprite = GetComponent<SpriteRenderer>();
         Vector2 movement = new Vector2(Input.GetAxisRaw("Horizontal"), 0) * Time.deltaTime * speed;
 
-        if(movement.x>0)
+        if (movement.x > 0)
         {
-            
+
             Animation(true);
         }
-        else if(movement.x<0){
-             
+        else if (movement.x < 0)
+        {
+
             Animation(false);
         }
 
         transform.Translate(movement, Space.World);
 
-        
+
         void Animation(bool directionRight)
         {
-            
+
 
             if (directionRight)
             {
-                print(sprite.flipX);
                 sprite.flipX = true;
             }
             else if (!directionRight)
             {
-                
-                print(sprite.flipX);
+
                 sprite.flipX = false;
             }
 
         }
 
     }
-    void Jump()
+    void HandleJump()
     {
 
         rb.AddForce(new Vector2(0, jumpForce));
 
     }
+
 
 }

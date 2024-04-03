@@ -1,10 +1,12 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StarUnlock : MonoBehaviour
+public class UIStarUnlock : MonoBehaviour
 {
 
+ 
     List<GameObject> stars = new List<GameObject>();
     int starsCollected = 0;
     void Start()
@@ -14,7 +16,6 @@ public class StarUnlock : MonoBehaviour
         {
             stars.Add(transform.GetChild(i).gameObject);
         }
-
     }
 
     void StarCollected()

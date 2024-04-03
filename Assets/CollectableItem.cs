@@ -8,11 +8,6 @@ public class CollectableItem : MonoBehaviour
 
     public static event StarCollected OnStarCollected;
 
-    //works but stars don't get highlighted
-    void Start()
-    {
-        //onStarCollected = null;
-    }
 
     void OnTriggerEnter2D(Collider2D collision)
     {

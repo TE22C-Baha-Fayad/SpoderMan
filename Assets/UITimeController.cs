@@ -9,13 +9,16 @@ public class UITimeController : MonoBehaviour
     [SerializeField] int levelTimeInSeconds;
     private TextMeshProUGUI timeLeftUi;
     public delegate void OutOfTime();
-    public static event OutOfTime onOutOfTime;
+    public static event OutOfTime OnOutOfTime;
 
     string timeLeftUiStartValue;
     float levelTimefloat;
+    bool gameEnded = false;
     void Start()
     {
-        levelTimefloat = (float)levelTimeInSeconds;
+        CanvasController.OnGameEnded += GameEnded;
+        SceneManager.activeSceneChanged += ResetValues;
+        levelTimefloat = levelTimeInSeconds;
         timeLeftUi = GetComponent<TextMeshProUGUI>();
         timeLeftUiStartValue = timeLeftUi.text;
     }
@@ -24,20 +27,28 @@ public class UITimeController : MonoBehaviour
 
     void Update()
     {
-        SceneManager.activeSceneChanged += ResetValues;
-        if (levelTimeInSeconds > 0)
-            levelTimefloat -= Time.deltaTime;
 
-        levelTimeInSeconds = (int)levelTimefloat;
+        if (!gameEnded)
+        {
+            if (levelTimeInSeconds > 0)
+                levelTimefloat -= Time.deltaTime;
 
-        if (levelTimeInSeconds == 0)
-            onOutOfTime?.Invoke();
+            levelTimeInSeconds = (int)levelTimefloat;
 
-        timeLeftUi.text = timeLeftUiStartValue + "<color=#262899>" + levelTimeInSeconds + "</color><color=#20187d>S</color>";
+            if (levelTimeInSeconds == 0)
+                OnOutOfTime?.Invoke();
+
+            timeLeftUi.text = timeLeftUiStartValue + "<color=#262899>" + levelTimeInSeconds + "</color><color=#20187d>S</color>";
+        }
+
+    }
+    void GameEnded()
+    {
+        gameEnded = true;
     }
     void ResetValues(Scene current, Scene next)
     {
-        onOutOfTime = null;
+        OnOutOfTime = null;
     }
 
 

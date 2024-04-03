@@ -1,17 +1,14 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class LevelEndButtonController : MonoBehaviour
+public class ButtonSceneManager : MonoBehaviour
 {
 
-
-    public void OnHomeClicked()
+    //simplify into one function with parameter
+    public void ButtonClicked(string sceneName)
     {
-        SceneManager.LoadSceneAsync("Home");
-    }
-    public void OnLevelsClicked()
-    {
-        SceneManager.LoadSceneAsync("Levels");
+        SceneManager.LoadSceneAsync(sceneName);
     }
     public void OnPlayAgainClicked()
     {
@@ -20,5 +17,9 @@ public class LevelEndButtonController : MonoBehaviour
     public void OnContinueClicked()
     {
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
+    }
+    public void ExitApplication()
+    {
+        Application.Quit();
     }
 }

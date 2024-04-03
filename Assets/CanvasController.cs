@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CanvasController : MonoBehaviour
@@ -7,27 +8,36 @@ public class CanvasController : MonoBehaviour
     [SerializeField] GameObject starsCanvasGameObject;
     [SerializeField] Texture[] starTextures;
 
+    [SerializeField] GameObject stars;
     [SerializeField] GameObject winCanvas;
-    [SerializeField] GameObject LoseCanvas;
+    [SerializeField] GameObject loseCanvas;
+
+    public delegate void GameEnded();
+    public static event GameEnded OnGameEnded;
 
 
     int starsCollected = 0;
+    int starsStartCount;
     void Start()
     {
-        UITimeController.onOutOfTime += OutOfTime;
+        SceneManager.activeSceneChanged += ResetValues;
+        starsStartCount = stars.transform.childCount;
+        UITimeController.OnOutOfTime += OutOfTime;
         CollectableItem.OnStarCollected += StarCollected;
     }
 
     void StarCollected()
     {
         starsCollected++;
-        if (starsCollected == 3)
+        if (starsCollected == starsStartCount)
         {
+            OnGameEnded?.Invoke();
             ShowWinCanvas();
         }
     }
     void OutOfTime()
     {
+        OnGameEnded?.Invoke();
         if (starsCollected > 0)
         {
             ShowWinCanvas();
@@ -40,12 +50,16 @@ public class CanvasController : MonoBehaviour
 
     void ShowLoseCanvas()
     {
-        LoseCanvas.SetActive(true);
+        loseCanvas.SetActive(true);
     }
     void ShowWinCanvas()
     {
         winCanvas.SetActive(true);
         starsCanvasGameObject.GetComponent<RawImage>().texture = starTextures[starsCollected - 1];
 
+    }
+    void ResetValues(Scene current, Scene next)
+    {
+        OnGameEnded = null;
     }
 }
