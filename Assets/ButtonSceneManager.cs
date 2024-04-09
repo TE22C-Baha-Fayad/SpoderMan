@@ -10,7 +10,7 @@ public class ButtonSceneManager : MonoBehaviour
     {
         SceneManager.LoadSceneAsync(sceneName);
     }
-    public void OnPlayAgainClicked()
+    public void OnPlayAgainClicked() 
     {
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
     }

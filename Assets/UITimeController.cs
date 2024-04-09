@@ -16,7 +16,7 @@ public class UITimeController : MonoBehaviour
     bool gameEnded = false;
     void Start()
     {
-        CanvasController.OnGameEnded += GameEnded;
+        CanvasController.OnGameEnded += StopTimer;
         SceneManager.activeSceneChanged += ResetValues;
         levelTimefloat = levelTimeInSeconds;
         timeLeftUi = GetComponent<TextMeshProUGUI>();
@@ -32,17 +32,15 @@ public class UITimeController : MonoBehaviour
         {
             if (levelTimeInSeconds > 0)
                 levelTimefloat -= Time.deltaTime;
-
             levelTimeInSeconds = (int)levelTimefloat;
-
             if (levelTimeInSeconds == 0)
                 OnOutOfTime?.Invoke();
 
-            timeLeftUi.text = timeLeftUiStartValue + "<color=#262899>" + levelTimeInSeconds + "</color><color=#20187d>S</color>";
+            timeLeftUi.text = timeLeftUiStartValue + "<color=#262899>" + levelTimeInSeconds + "</color><color=#20187d> S</color>";
         }
 
     }
-    void GameEnded()
+    void StopTimer()
     {
         gameEnded = true;
     }

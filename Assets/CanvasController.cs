@@ -5,9 +5,10 @@ using UnityEngine.UI;
 public class CanvasController : MonoBehaviour
 {
     // Start is called before the first frame update
-    [SerializeField] GameObject starsCanvasGameObject;
+    [SerializeField] GameObject starsUI;
     [SerializeField] Texture[] starTextures;
 
+    [SerializeField] GameObject player;
     [SerializeField] GameObject stars;
     [SerializeField] GameObject winCanvas;
     [SerializeField] GameObject loseCanvas;
@@ -24,6 +25,14 @@ public class CanvasController : MonoBehaviour
         starsStartCount = stars.transform.childCount;
         UITimeController.OnOutOfTime += OutOfTime;
         CollectableItem.OnStarCollected += StarCollected;
+    }
+    void Update()
+    {
+        if(player.transform.localPosition.y < -10)
+        {
+            OnGameEnded?.Invoke();
+            ShowLoseCanvas();
+        }
     }
 
     void StarCollected()
@@ -55,7 +64,7 @@ public class CanvasController : MonoBehaviour
     void ShowWinCanvas()
     {
         winCanvas.SetActive(true);
-        starsCanvasGameObject.GetComponent<RawImage>().texture = starTextures[starsCollected - 1];
+        starsUI.GetComponent<RawImage>().texture = starTextures[starsCollected - 1];
 
     }
     void ResetValues(Scene current, Scene next)

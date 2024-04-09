@@ -25,22 +25,26 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float castDistance = 1f;
     [SerializeField] LayerMask groundLayer;
 
-
-
+    [Header("PauseGame Refrence")]
+    [SerializeField] GameObject escapeMenu;
     public delegate void Teleported(int teleportationsAvailable);
     public static event Teleported OnTeleport;
 
 
     private LineRenderer playerTeleportationLine;
     private GameObject teleportationBorder;
+
     private bool teleportActive = false;
     private bool isJumping = false;
+    private bool gamePaused = false;
+
     private Rigidbody2D rb;
 
 
     void Start()
     {
-        CanvasController.OnGameEnded += GameEnded;
+        Time.timeScale=1;
+        CanvasController.OnGameEnded += DisableGamobject;
         teleportationBorder = transform.Find("TeleportationBorder").gameObject;
         playerTeleportationLine = GetComponent<LineRenderer>();
         rb = GetComponent<Rigidbody2D>();
@@ -51,7 +55,20 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if(transform.localPosition.y < -10)
+        {
+            
+        }
+        if (Input.GetKeyDown(KeyCode.Escape) && !teleportActive && !gamePaused)
+        {
+            gamePaused = true;
+            GameStatePause(true);
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape) && !teleportActive && gamePaused)
+        {
+            gamePaused = false;
+            GameStatePause(false);
+        }
         if (Input.GetKeyDown(KeyCode.Escape) && teleportActive)
         {
             CancelTeleportation();
@@ -70,11 +87,11 @@ public class PlayerController : MonoBehaviour
             teleportActive = false;
             transform.position = transform.TransformPoint(playerTeleportationLine.GetComponent<LineRenderer>().GetPosition(1));
         }
-
         if (Input.GetKeyDown(KeyCode.W) && IsGrounded() && !teleportActive)
         {
             isJumping = true;
         }
+
 
 
 
@@ -107,7 +124,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void GameEnded()
+    void DisableGamobject()
     {
         gameObject.SetActive(false);
     }
@@ -166,33 +183,15 @@ public class PlayerController : MonoBehaviour
         if (movement.x > 0)
         {
 
-            Animation(true);
+            sprite.flipX = true;
         }
         else if (movement.x < 0)
         {
 
-            Animation(false);
+            sprite.flipX = false;
         }
 
         transform.Translate(movement, Space.World);
-
-
-        void Animation(bool directionRight)
-        {
-
-
-            if (directionRight)
-            {
-                sprite.flipX = true;
-            }
-            else if (!directionRight)
-            {
-
-                sprite.flipX = false;
-            }
-
-        }
-
     }
     void HandleJump()
     {
@@ -200,6 +199,19 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(new Vector2(0, jumpForce));
 
     }
+    void GameStatePause(bool paused)
+    {
+        if (paused)
+        {
+            Time.timeScale = 0;
+            escapeMenu.SetActive(true);
+        }
+        else
+        {
+            Time.timeScale = 1;
+            escapeMenu.SetActive(false);
+        }
 
+    }
 
 }
