@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6008535465287213852}
   - component: {fileID: 3959638499034559092}
   - component: {fileID: 1915719934512123500}
-  - component: {fileID: -8589753010682238856}
+  - component: {fileID: 134458216033520183}
   m_Layer: 5
   m_Name: LevelButtonUi
   m_TagString: Untagged
@@ -123,9 +123,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: -8589753010682238856}
-        m_TargetAssemblyTypeName: LevelUIController, Assembly-CSharp
-        m_MethodName: LevelUiButtonClicked
+      - m_Target: {fileID: 134458216033520183}
+        m_TargetAssemblyTypeName: ButtonSceneManager, Assembly-CSharp
+        m_MethodName: LoadLevelByUiTextNumber
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -135,7 +135,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &-8589753010682238856
+--- !u!114 &134458216033520183
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4382510505919430787}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f443b5546c0f1b04cbb2366d896c4dfb, type: 3}
+  m_Script: {fileID: 11500000, guid: f2073a9fd797b24488cc74c5c63598b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &4959896889725203661
