@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -54,6 +55,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         Time.timeScale = 1; //make sure the game is not paused when the game begins
+        SceneManager.activeSceneChanged += ResetValues;
         CanvasController.OnGameEnded += DisableGamobject;
         teleportationBorder = transform.Find("TeleportationBorder").gameObject;
         playerTeleportationLine = GetComponent<LineRenderer>();
@@ -245,6 +247,10 @@ public class PlayerController : MonoBehaviour
             escapeMenu.SetActive(false);
         }
 
+    }
+    void ResetValues(Scene current, Scene next)
+    {
+        OnTeleport = null;
     }
 
 }

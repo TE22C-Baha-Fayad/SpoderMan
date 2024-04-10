@@ -1,8 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using Unity.Mathematics;
-using UnityEditor.Experimental;
 using UnityEngine;
 
 public class TeleportationBoxController : MonoBehaviour
