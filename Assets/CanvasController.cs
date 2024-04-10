@@ -1,3 +1,4 @@
+using System.Runtime.Serialization.Formatters;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ public class CanvasController : MonoBehaviour
     [Header("Canvases")]
     [SerializeField][Tooltip("wincanvas gameobject")] GameObject winCanvas;
     [SerializeField][Tooltip("Losecanvas gameobject")] GameObject loseCanvas;
+    [SerializeField][Tooltip("hint gameobject")] GameObject hintCanvas;
 
     [Header("Other")]
     [SerializeField][Tooltip("the player gameobject")] GameObject player;
@@ -26,7 +28,7 @@ public class CanvasController : MonoBehaviour
     int starsToCollect;
     void Start()
     {
-
+        PlayerController.OnTeleport+= SwitchHintActiveState;
         SceneManager.activeSceneChanged += ResetValues;
         starsToCollect = stars.transform.childCount;
         UITimeController.OnOutOfTime += OutOfTime;
@@ -98,6 +100,21 @@ public class CanvasController : MonoBehaviour
     {
         winCanvas.SetActive(true);
         starsUI.GetComponent<RawImage>().texture = starTextures[starsCollected - 1];
+    }
+    /// <summary>
+    /// when player teleports it get invoked.
+    /// </summary>
+    /// <param name="telepsLeft"></param>
+    /// <param name="teleportationActive"></param>
+    void SwitchHintActiveState(int telepsLeft,bool teleportationActive)
+    {
+        if(teleportationActive)
+        {
+            hintCanvas.SetActive(true);
+        }
+        else{
+            hintCanvas.SetActive(false);
+        }
     }
     /// <summary>
     /// Resets the value for OnGameEnded event because it's static, when the game ends.

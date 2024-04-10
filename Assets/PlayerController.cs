@@ -2,18 +2,19 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    // TODO: show the player some instructions and make it visible that you can cancel a teleportation
-    // TODO: skriv i loggboken**********
+    // för mig bara
+    // TODO: show the player some instructions and make it visible that you can cancel a teleportation done(x)
+    // TODO: skriv i loggboken********** done(X)
     // TODO: make pause menu done(x)
     // TODO: done (x) player jumping high by teleportation, fix that. 
-    // TODO: start scene, levels, 
+    // TODO: start scene, levels, done(x) partially
     // TODO: done (x) teleportation limit. 
-    // TODO: lasers, obsticals such as sticks rotating in the way of the player.
-    // TODO:  comment code later
+    // TODO: lasers, obsticals such as sticks rotating in the way of the player. not enough time
+    // TODO:  comment code later done(x)
     // TODO: done (x) wining after loosing glitch that must be fixed****
     // TODO: done (x) teleportationsAvailable count is wierd, fix that.
-    // TODO: divide into more functions 
+    // TODO: divide into more functions done(x)
+    //för mig bara
 
     [Header("Player Settings")]
     [SerializeField][Tooltip("player movemenet speed")] float speed = 5;
@@ -31,7 +32,7 @@ public class PlayerController : MonoBehaviour
 
 
     //delegate for teleportation, used for Ui
-    public delegate void Teleported(int teleportationsAvailable);
+    public delegate void Teleported(int teleportationsAvailable, bool teleportActive);
     public static event Teleported OnTeleport;
 
 
@@ -57,7 +58,7 @@ public class PlayerController : MonoBehaviour
         teleportationBorder = transform.Find("TeleportationBorder").gameObject;
         playerTeleportationLine = GetComponent<LineRenderer>();
         rb = GetComponent<Rigidbody2D>();
-        OnTeleport?.Invoke(teleportationsAvailable); //send the teleportations left count on start.
+        OnTeleport?.Invoke(teleportationsAvailable, teleportActive); //send the teleportations left count on start.
     }
 
 
@@ -86,20 +87,20 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && !teleportActive)
         {
             //handeling the input for teleportation
-
+            teleportActive = true; //activate the teleportation state
             playerTeleportationLine.SetPosition(1, Vector3.zero); //reset line position
             if (teleportationsAvailable > -1)
                 teleportationsAvailable--; // subtract teleps left with 1 after a teleportation is made
 
-            OnTeleport?.Invoke(teleportationsAvailable); //report the info to the textui.
-            teleportActive = true; //activate the teleportation state
+            OnTeleport?.Invoke(teleportationsAvailable, teleportActive); //report the info to the textui.
         }
         else if (Input.GetKeyDown(KeyCode.Space) && teleportActive)
         {
             //handeling the input for teleportation
-
+          
             transform.position = transform.TransformPoint(playerTeleportationLine.GetComponent<LineRenderer>().GetPosition(1)); //set the position of the player to the target
             teleportActive = false;//stop the teleportation 
+            OnTeleport?.Invoke(teleportationsAvailable,teleportActive);
         }
         if (Input.GetKeyDown(KeyCode.W) && IsGrounded() && !teleportActive)
         {
@@ -157,8 +158,8 @@ public class PlayerController : MonoBehaviour
     void CancelTeleportation()
     {
         teleportationsAvailable++; //increasing the teleportation that would have been lost.
-        OnTeleport?.Invoke(teleportationsAvailable); //reporting the count of teleportation to ui
         teleportActive = false; // setting teleportation state to false.
+        OnTeleport?.Invoke(teleportationsAvailable, teleportActive); //reporting the count of teleportation to ui
     }
     void Teleport()
     {

@@ -16,7 +16,7 @@ public class UITeleportationController : MonoBehaviour
         labelStartValue = teleportationLabelUi.text;
     }
     //invoked by the player when teleporting mode is active
-    void Teleported(int teleportationsAvailable)
+    void Teleported(int teleportationsAvailable,bool teleportActive)
     {
         //if teleps count is less the 0
         if (teleportationsAvailable < 0)
